@@ -25,7 +25,7 @@ bool Processor::process(MicroNMEA &n) {
 }
 
 const char *Processor::nextFilename() {
-  static char buffer[16];
+  static char buffer[12];
   long counter = 0;
   File lastfile;
 
@@ -35,7 +35,7 @@ const char *Processor::nextFilename() {
     counter = atol(buffer) + 1;
     lastfile.close();
   }
-  sprintf(buffer, "%10d.csv", counter);
+  sprintf(buffer, "%8d.CSV", counter);
   lastfile = SD.open(LASTFILE, FILE_WRITE);
   lastfile.print(buffer);
   lastfile.close();
