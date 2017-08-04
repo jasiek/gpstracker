@@ -7,15 +7,18 @@
 
 #define CSV_HEADER "date;time;lat;lon;alt;speed;cour"
 #define LASTFILE "LASTFILE"
+#define INTERVAL 10000 // miliseconds
 
 class Processor {
 public:
   Processor(int);
+  void begin();
   bool process(MicroNMEA &);
 private:
   void dump(MicroNMEA &, Stream &);
   const char *nextFilename();
   char buffer[12];
+  unsigned long lastWrite;
   int cs_pin;
   File file;
 };

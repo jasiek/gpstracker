@@ -8,7 +8,7 @@
 
 char nmeaBuffer[100];
 MicroNMEA nmea(nmeaBuffer, sizeof(nmeaBuffer));
-Processor processor(10);
+Processor processor(7);
 
 #define GPS Serial2
 
@@ -32,23 +32,17 @@ void setup() {
   MicroNMEA::sendSentence(GPS, "$PNVGNME,2,9,1");
 
   off(LED_R);
+  processor.begin();
 }
 
 void loop() {
   while (GPS.available()) {
     char c = GPS.read();
-    Serial.print(c);
-    if (nmea.process(c)) break;
+    nmea.process(c);
   }
 
-  Serial.println("BREAK");
-
-  if (nmea.isValid()) {
-    Serial.println("VALID");
+  if (nmea.isValid() && nmea.getYear() != 0) {
     processor.process(nmea) ? flash(LED_Y) : flash(LED_R);
-  } else {
-    blink(LED_G);
+    nmea.clear();
   }
-
-  delay(10);
 }
