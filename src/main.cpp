@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <processor.h>
+#include <led.h>
 
 #define LED_R 20
 #define LED_G 21
@@ -9,41 +10,45 @@ char nmeaBuffer[100];
 MicroNMEA nmea(nmeaBuffer, sizeof(nmeaBuffer));
 Processor processor(10);
 
-void flash(int led) {
-  digitalWrite(led, 1);
-  delay(100);
-  digitalWrite(led, 0);
-}
-
-void blink(int led) {
-  digitalWrite(led, 0);
-  delay(100);
-  digitalWrite(led, 1);
-}
+#define GPS Serial2
 
 void setup() {
   pinMode(LED_R, OUTPUT);
   pinMode(LED_G, OUTPUT);
   pinMode(LED_Y, OUTPUT);
 
-  digitalWrite(LED_R, 0);
-  digitalWrite(LED_Y, 0);
+  off(LED_Y);
 
-  Serial.begin(9600);
-  Serial2.begin(9600);
+  Serial.begin(115200);
+  GPS.begin(9600);
 
-  digitalWrite(LED_G, 1);
+  on(LED_R);
+  on(LED_G);
+
+  delay(5000);
+
+  MicroNMEA::sendSentence(GPS, "$PORZB");
+  MicroNMEA::sendSentence(GPS, "$PORZB,RMC,1,GGA,1");
+  MicroNMEA::sendSentence(GPS, "$PNVGNME,2,9,1");
+
+  off(LED_R);
 }
 
 void loop() {
-  if (Serial2.available()) {
-    char c = Serial2.read();
-    nmea.process(c);
-
-    if (nmea.isValid()) {
-      processor.process(nmea) ? flash(LED_Y) : flash(LED_R);
-    } else {
-      blink(LED_G);
-    }
+  while (GPS.available()) {
+    char c = GPS.read();
+    Serial.print(c);
+    if (nmea.process(c)) break;
   }
+
+  Serial.println("BREAK");
+
+  if (nmea.isValid()) {
+    Serial.println("VALID");
+    processor.process(nmea) ? flash(LED_Y) : flash(LED_R);
+  } else {
+    blink(LED_G);
+  }
+
+  delay(10);
 }
