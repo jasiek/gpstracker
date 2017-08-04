@@ -4,6 +4,9 @@ Processor::Processor(int pin) : cs_pin(pin) {
 }
 
 bool Processor::process(MicroNMEA &n) {
+  dump(n, Serial);
+  return true;
+
   if (SD.begin(cs_pin)) {
     // If file not already opened for writing, create a new file and open for writing.
     if (!file) {
@@ -15,7 +18,7 @@ bool Processor::process(MicroNMEA &n) {
 
     // If this is a valid message, dump it to a file.
     if (n.isValid()) {
-      dump(n);
+      dump(n, file);
       return true;
     } else {
       file.close();
@@ -25,8 +28,7 @@ bool Processor::process(MicroNMEA &n) {
 }
 
 const char *Processor::nextFilename() {
-  static char buffer[12];
-  long counter = 0;
+  int counter = 0;
   File lastfile;
 
   if (SD.exists(LASTFILE)) {
@@ -43,10 +45,10 @@ const char *Processor::nextFilename() {
   return buffer;
 }
 
-void Processor::dump(MicroNMEA &n) {
+void Processor::dump(MicroNMEA &n, Stream &s) {
   char line[128];
-  long altitude;
-  sprintf(line, "%4d/%2d/%2d;%2d:%2d:%2d.0;%3.7f;%3.7f;%d;%d;%d",
+  long altitude = 0;
+  sprintf(line, "%4d/%2d/%2d;%2d:%2d:%2d.0;%3.7f;%3.7f;%l;%l;%l",
           n.getYear(),
           n.getMonth(),
           n.getDay(),
@@ -54,10 +56,10 @@ void Processor::dump(MicroNMEA &n) {
           n.getMinute(),
           n.getSecond(),
           n.getLatitude() / 1000000.,
-          n.getLongitude() / 100000.,
+          n.getLongitude() / 1000000.,
           altitude,
           n.getSpeed() / 1000.,
           n.getCourse() / 1000.);
-  file.println(line);
-  file.flush();
+  s.println(line);
+  s.flush();
 }

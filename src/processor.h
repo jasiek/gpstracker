@@ -13,8 +13,9 @@ public:
   Processor(int);
   bool process(MicroNMEA &);
 private:
-  void dump(MicroNMEA &);
+  void dump(MicroNMEA &, Stream &);
   const char *nextFilename();
+  char buffer[12];
   int cs_pin;
   File file;
 };
