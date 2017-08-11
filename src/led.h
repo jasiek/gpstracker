@@ -10,12 +10,12 @@ void off(int led) {
 
 void flash(int led) {
   on(led);
-  delay(100);
+  delay(30);
   off(led);
 }
 
 void blink(int led) {
   off(led);
-  delay(100);
+  delay(30);
   on(led);
 }

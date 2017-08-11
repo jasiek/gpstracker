@@ -2,9 +2,9 @@
 #include <processor.h>
 #include <led.h>
 
-#define LED_R 20
-#define LED_G 21
-#define LED_Y 22
+#define LED_R 2
+#define LED_G 1
+#define LED_Y 0
 
 char nmeaBuffer[100];
 MicroNMEA nmea(nmeaBuffer, sizeof(nmeaBuffer));
@@ -16,6 +16,7 @@ void setup() {
   pinMode(LED_R, OUTPUT);
   pinMode(LED_G, OUTPUT);
   pinMode(LED_Y, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
 
   off(LED_Y);
 
@@ -38,11 +39,13 @@ void setup() {
 void loop() {
   while (GPS.available()) {
     char c = GPS.read();
+    Serial.print(c);
     nmea.process(c);
   }
 
   if (nmea.isValid() && nmea.getYear() != 0) {
     processor.process(nmea) ? flash(LED_Y) : flash(LED_R);
     nmea.clear();
+    flash(LED_BUILTIN);
   }
 }

@@ -37,6 +37,7 @@ bool Processor::process(MicroNMEA &n) {
 
   // If this is a valid message, dump it to a file.
   if (n.isValid()) {
+    Serial.println("Writing to file");
     dump(n, file);
     return true;
   } else {

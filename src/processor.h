@@ -7,7 +7,7 @@
 
 #define CSV_HEADER "date;time;lat;lon;alt;speed;cour"
 #define LASTFILE "LASTFILE"
-#define INTERVAL 10000 // miliseconds
+#define INTERVAL 60000 // miliseconds
 
 class Processor {
 public:
